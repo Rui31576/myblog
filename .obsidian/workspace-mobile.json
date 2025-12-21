@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "content/posts/hello.md.md",
+                "file": "content/posts/first-post.md.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "hello.md"
+              "title": "first-post.md"
             }
           }
         ]
@@ -112,7 +112,7 @@
         "state": {
           "type": "backlink",
           "state": {
-            "file": "content/posts/hello.md.md",
+            "file": "content/posts/first-post.md.md",
             "collapseAll": false,
             "extraContext": false,
             "sortOrder": "alphabetical",
@@ -131,7 +131,7 @@
         "state": {
           "type": "outgoing-link",
           "state": {
-            "file": "content/posts/hello.md.md",
+            "file": "content/posts/first-post.md.md",
             "linksCollapsed": false,
             "unlinkedCollapsed": true
           },
@@ -145,7 +145,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "content/posts/hello.md.md",
+            "file": "content/posts/first-post.md.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -172,6 +172,7 @@
   "active": "f18eebd97b31d68c",
   "lastOpenFiles": [
     "hugo.toml.md",
+    "content/posts/first-post.md.md",
     "content/posts/hello.md.md",
     "content/posts",
     "content",
