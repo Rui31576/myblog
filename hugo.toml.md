@@ -1,0 +1,10 @@
+<!-- end list -->
+# 这里的 myblog 必须和你的仓库名一致
+baseURL = 'https://Rui31576.github.io/myblog/'
+languageCode = 'zh-cn'
+title = 'RuiCore | 边地修行录'
+
+# 因为你是直接 Fork 的主题，布局文件就在根目录，所以不需要 theme = 'xxx'
+
+[params]
+  bio = "记录从PTSD到内丹修行的自救全程。"
