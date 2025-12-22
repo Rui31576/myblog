@@ -5,7 +5,7 @@ draft: true
 categories: ["WorkLog"]
 ---
 
-# 今日目标
+# 今日记事
 - [ ] 
 
 # 核心进展

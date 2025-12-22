@@ -1,0 +1,5 @@
+{
+  "format": "YYYY-MM-DD-[log]",
+  "folder": "content/diary",
+  "template": "Templates/Log-Template"
+}
