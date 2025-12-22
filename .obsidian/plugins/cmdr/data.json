@@ -1,0 +1,38 @@
+{
+  "confirmDeletion": true,
+  "showAddCommand": true,
+  "debug": false,
+  "editorMenu": [],
+  "fileMenu": [],
+  "leftRibbon": [],
+  "rightRibbon": [],
+  "titleBar": [],
+  "statusBar": [],
+  "pageHeader": [],
+  "macros": [],
+  "explorer": [],
+  "hide": {
+    "statusbar": [],
+    "leftRibbon": []
+  },
+  "spacing": 8,
+  "advancedToolbar": {
+    "rowHeight": 48,
+    "rowCount": 1,
+    "spacing": 0,
+    "buttonWidth": 48,
+    "columnLayout": false,
+    "mappedIcons": [
+      {
+        "commandID": "obsidian-git:push2",
+        "iconID": "lucide-cloud-upload"
+      },
+      {
+        "commandID": "obsidian-git:commit",
+        "iconID": "lucide-import"
+      }
+    ],
+    "tooltips": false,
+    "heightOffset": 0
+  }
+}
