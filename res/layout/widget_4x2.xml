@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/w_root" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="#0D1117" android:padding="14dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="时 行" android:textSize="10sp" android:textColor="#A9C4E0"/>
+        <TextView android:id="@+id/w_ts" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="未同步" android:textSize="9sp" android:textColor="#5F6E7E"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:orientation="horizontal" android:gravity="center_vertical">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:orientation="vertical" android:gravity="center">
+            <TextView android:id="@+id/w_wait" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="0" android:textSize="30sp" android:textStyle="bold" android:textColor="#FFAB2E"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="拍板" android:textSize="9sp" android:textColor="#7C8A99"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:orientation="vertical" android:gravity="center">
+            <TextView android:id="@+id/w_block" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="0" android:textSize="30sp" android:textStyle="bold" android:textColor="#FF4D3D"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="卡住" android:textSize="9sp" android:textColor="#7C8A99"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:orientation="vertical" android:gravity="center">
+            <TextView android:id="@+id/w_run" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="0" android:textSize="30sp" android:textStyle="bold" android:textColor="#2EE6A0"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="在跑" android:textSize="9sp" android:textColor="#7C8A99"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

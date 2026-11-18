@@ -3,6 +3,8 @@ package com.ray.kanban;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -36,6 +38,33 @@ public class MainActivity extends Activity {
         public void setUrl(String u) {
             SharedPreferences sp = getSharedPreferences(BoardWidget.PREFS, MODE_PRIVATE);
             sp.edit().putString("url", u).apply();
+        }
+
+        @JavascriptInterface
+        public void setWidgetStyle(int bgIndex, int alpha) {
+            SharedPreferences sp = getSharedPreferences(BoardWidget.PREFS, MODE_PRIVATE);
+            sp.edit().putInt(BoardWidget.K_BG, bgIndex)
+              .putInt(BoardWidget.K_ALPHA, alpha).apply();
+            BoardWidget.refreshAll(MainActivity.this);
+        }
+
+        @JavascriptInterface
+        public int[] getWidgetStyle() {
+            SharedPreferences sp = getSharedPreferences(BoardWidget.PREFS, MODE_PRIVATE);
+            return new int[]{ sp.getInt(BoardWidget.K_BG, 0), sp.getInt(BoardWidget.K_ALPHA, 100) };
+        }
+
+        @JavascriptInterface
+        public boolean pinWidget(int idx) {
+            Class<?>[] cs = { Widget4x1.class, Widget4x2.class, Widget2x2.class, BoardWidget.class };
+            if (idx < 0 || idx >= cs.length) return false;
+            AppWidgetManager mgr = AppWidgetManager.getInstance(MainActivity.this);
+            if (mgr.isRequestPinAppWidgetSupported()) {
+                ComponentName cn = new ComponentName(MainActivity.this, cs[idx]);
+                return mgr.requestPinAppWidget(cn, null, null);
+            }
+            Toast.makeText(MainActivity.this, "桌面不支持一键添加，请长按桌面手动添加", Toast.LENGTH_LONG).show();
+            return false;
         }
 
         @JavascriptInterface

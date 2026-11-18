@@ -304,6 +304,30 @@ body.done .card,body.done .num,body.done .hero{animation:none!important;opacity:
     <div class="row"><input id="alpha" type="range" min="35" max="100" value="72"><span id="alpha-v">72%</span></div>
   </div>
 
+
+  <div class="sec">
+    <h3>桌面组件</h3>
+    <div class="opt" id="opt-size">
+      <button data-v="0">4×1 条</button>
+      <button data-v="1">4×2</button>
+      <button data-v="2">2×2</button>
+      <button data-v="3">4×4</button>
+    </div>
+    <div class="hint" style="margin-top:6px">点一下会请求系统直接放到桌面；不支持的话长按桌面手动添加</div>
+  </div>
+
+  <div class="sec">
+    <h3>组件背景</h3>
+    <div class="opt" id="opt-wbg">
+      <button data-v="0" style="border-color:#2a3644"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#0D1117;border:1px solid #33414f;margin-right:6px;vertical-align:middle"></span>深空</button>
+      <button data-v="1"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#000;border:1px solid #33414f;margin-right:6px;vertical-align:middle"></span>纯黑</button>
+      <button data-v="2"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#111A24;border:1px solid #33414f;margin-right:6px;vertical-align:middle"></span>靛蓝</button>
+      <button data-v="3"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1A1F26;border:1px solid #33414f;margin-right:6px;vertical-align:middle"></span>石墨</button>
+    </div>
+    <div class="row" style="margin-top:10px"><span style="font-size:11.5px;color:#7f8b99">不透明度</span>
+      <input id="walpha" type="range" min="0" max="100" value="100"><span id="walpha-v" style="font-size:11.5px;color:#9aa8b7">100%</span></div>
+  </div>
+
   <div class="sec">
     <h3>数据源</h3>
     <input id="url2" placeholder="https://.../board.json" style="width:100%;background:#07090c;border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:11px;font-size:13px;margin-bottom:10px" />
@@ -330,7 +354,9 @@ body.done .card,body.done .num,body.done .hero{animation:none!important;opacity:
   <div class="sec">
     <h3>更新记录</h3>
     <div class="log">
-      <p><b>v1.1</b>　2026-11-18<br><span class="add">新增</span> 搜索：可搜任务名、下一步、备注、关联，命中词高亮，支持两个字的中文词<br><span class="add">新增</span> 搜索结果跨全部状态，包含已归档的旧任务，用于回溯<br><span class="add">新增</span> 支持 #q=关键词 直接带参数打开<br><span class="del">删除</span> 无（本版为增量）</p>
+      <p><b>v1.2</b>　2026-11-18<br><span class="add">新增</span> 桌面组件四种尺寸：4×1 条、4×2、2×2、4×4，各自独立布局<br><span class="add">新增</span> 设置页可一键请求添加到桌面<br><span class="add">新增</span> 组件背景四色可选、不透明度可调<br><span class="del">删除</span> 无</p>
+
+<p><b>v1.1</b>　2026-11-18<br><span class="add">新增</span> 搜索：可搜任务名、下一步、备注、关联，命中词高亮，支持两个字的中文词<br><span class="add">新增</span> 搜索结果跨全部状态，包含已归档的旧任务，用于回溯<br><span class="add">新增</span> 支持 #q=关键词 直接带参数打开<br><span class="del">删除</span> 无（本版为增量）</p>
 
 <p><b>v1.0</b>　2026-11-18<br><span class="add">重做</span> 图标改为矢量绘制，去掉全部位图资源<br><span class="add">新增</span> 组件背景改为 shape 资源<br><span class="del">删除</span> PNG 图标与位图背景</p>
 
@@ -373,7 +399,7 @@ body.done .card,body.done .num,body.done .hero{animation:none!important;opacity:
   </div>
 
   <div class="foot">
-    版本 v1.1（build 11）<br>
+    版本 v1.2（build 12）<br>
     创作者　张瑞　及　Amoo·Rui
   </div>
 
@@ -635,6 +661,9 @@ document.addEventListener('input',function(e){
     localStorage.setItem('p_alpha',v);
     document.getElementById('alpha-v').textContent=v+'%';
     applyPrefs();
+WBG=parseInt(localStorage.getItem('w_bg')||'0');
+WALPHA=parseInt(localStorage.getItem('w_alpha')||'100');
+markOpt('opt-wbg',String(WBG));
   }
 });
 
@@ -660,6 +689,37 @@ if(location.hash.indexOf("q=")>=0){
   QUERY=decodeURIComponent(location.hash.split("q=")[1]||"");
   if(qi){ qi.value=QUERY; document.querySelector(".search").classList.add("has"); }
 }
+
+
+/* ===== 组件设置 ===== */
+let WBG=0, WALPHA=100;
+function applyWidgetStyle(){
+  try{ if(window.Android && window.Android.setWidgetStyle) window.Android.setWidgetStyle(WBG, WALPHA); }catch(e){}
+  localStorage.setItem('w_bg', WBG); localStorage.setItem('w_alpha', WALPHA);
+  markOpt('opt-wbg', String(WBG));
+  const sl=document.getElementById('walpha');
+  if(sl){ sl.value=WALPHA; document.getElementById('walpha-v').textContent=WALPHA+'%'; }
+}
+document.addEventListener('click', function(e){
+  const b=e.target.closest('#opt-size button');
+  if(b){
+    const idx=parseInt(b.dataset.v);
+    let ok=false;
+    try{ ok = window.Android && window.Android.pinWidget ? window.Android.pinWidget(idx) : false; }catch(err){}
+    markOpt('opt-size', String(idx));
+    if(!ok){ try{ window.Android && window.Android.toast && window.Android.toast('请在桌面上长按空白→小组件→选「时行」'); }catch(err){} }
+    return;
+  }
+  const g=e.target.closest('#opt-wbg button');
+  if(g){ WBG=parseInt(g.dataset.v); applyWidgetStyle(); return; }
+});
+document.addEventListener('input', function(e){
+  if(e.target.id==='walpha'){
+    WALPHA=parseInt(e.target.value);
+    document.getElementById('walpha-v').textContent=WALPHA+'%';
+    applyWidgetStyle();
+  }
+});
 
 render();
 refresh();

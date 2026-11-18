@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.widget.RemoteViews;
 
 import org.json.JSONArray;
@@ -28,19 +29,22 @@ public class BoardWidget extends AppWidgetProvider {
     public static final String K_RUN = "n_run";
     public static final String K_TS = "ts";
     public static final String K_URL = "url";
+    public static final String K_BG = "w_bg";
+    public static final String K_ALPHA = "w_alpha";
+
+    /** 背景色板，索引与设置页一致 */
+    public static final int[] BGS = { 0x0D1117, 0x000000, 0x111A24, 0x1A1F26 };
+
+    protected int layoutRes() { return R.layout.widget_board; }
 
     @Override
     public void onUpdate(final Context ctx, final AppWidgetManager mgr, final int[] ids) {
-        // 先用缓存立刻渲染一次，避免白屏
         paint(ctx, mgr, ids);
-        // 再异步拉数据
         final PendingResult pr = goAsync();
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    if (fetchAndStore(ctx)) {
-                        paint(ctx, mgr, ids);
-                    }
+                    if (fetchAndStore(ctx)) paint(ctx, mgr, ids);
                 } finally {
                     pr.finish();
                 }
@@ -48,7 +52,6 @@ public class BoardWidget extends AppWidgetProvider {
         }).start();
     }
 
-    /** 拉数据源并写入 SharedPreferences，成功返回 true。 */
     public static boolean fetchAndStore(Context ctx) {
         SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         String url = sp.getString(K_URL, "");
@@ -61,7 +64,7 @@ public class BoardWidget extends AppWidgetProvider {
             conn = (HttpURLConnection) new URL(u).openConnection();
             conn.setConnectTimeout(8000);
             conn.setReadTimeout(8000);
-            conn.setRequestProperty("User-Agent", "kanban-widget");
+            conn.setRequestProperty("User-Agent", "shixing-widget");
             StringBuilder sb = new StringBuilder();
             BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
             String line;
@@ -89,21 +92,28 @@ public class BoardWidget extends AppWidgetProvider {
         }
     }
 
-    private static void paint(Context ctx, AppWidgetManager mgr, int[] ids) {
-        for (int id : ids) {
-            mgr.updateAppWidget(id, build(ctx));
-        }
+    public static int bgColor(Context ctx) {
+        SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        int idx = sp.getInt(K_BG, 0);
+        int alpha = sp.getInt(K_ALPHA, 100);
+        if (idx < 0 || idx >= BGS.length) idx = 0;
+        int a = Math.round(255f * Math.max(0, Math.min(100, alpha)) / 100f);
+        return Color.argb(a, Color.red(BGS[idx]), Color.green(BGS[idx]), Color.blue(BGS[idx]));
     }
 
-    public static RemoteViews build(Context ctx) {
+    private void paint(Context ctx, AppWidgetManager mgr, int[] ids) {
+        for (int id : ids) mgr.updateAppWidget(id, build(ctx, layoutRes()));
+    }
+
+    public static RemoteViews build(Context ctx, int layout) {
         SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        RemoteViews rv = new RemoteViews(ctx.getPackageName(), R.layout.widget_board);
+        RemoteViews rv = new RemoteViews(ctx.getPackageName(), layout);
         rv.setTextViewText(R.id.w_wait, String.valueOf(sp.getInt(K_WAIT, 0)));
         rv.setTextViewText(R.id.w_block, String.valueOf(sp.getInt(K_BLOCK, 0)));
         rv.setTextViewText(R.id.w_run, String.valueOf(sp.getInt(K_RUN, 0)));
         String ts = sp.getString(K_TS, "");
         rv.setTextViewText(R.id.w_ts, ts.isEmpty() ? "未同步" : ts);
-
+        rv.setInt(R.id.w_root, "setBackgroundColor", bgColor(ctx));
 
         Intent i = new Intent(ctx, MainActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -113,12 +123,16 @@ public class BoardWidget extends AppWidgetProvider {
         return rv;
     }
 
+    /** 样式改了以后，把所有尺寸的组件都刷一遍 */
     public static void refreshAll(Context ctx) {
         AppWidgetManager mgr = AppWidgetManager.getInstance(ctx);
-        ComponentName cn = new ComponentName(ctx, BoardWidget.class);
-        int[] ids = mgr.getAppWidgetIds(cn);
-        if (ids == null || ids.length == 0) return;
-        RemoteViews rv = build(ctx);
-        for (int id : ids) mgr.updateAppWidget(id, rv);
+        Class<?>[] cs = { BoardWidget.class, Widget4x1.class, Widget4x2.class, Widget2x2.class };
+        int[] layouts = { R.layout.widget_board, R.layout.widget_4x1, R.layout.widget_4x2, R.layout.widget_2x2 };
+        for (int k = 0; k < cs.length; k++) {
+            ComponentName cn = new ComponentName(ctx, cs[k]);
+            int[] ids = mgr.getAppWidgetIds(cn);
+            if (ids == null) continue;
+            for (int id : ids) mgr.updateAppWidget(id, build(ctx, layouts[k]));
+        }
     }
 }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ray.kanban"
-    android:versionCode="11"
-    android:versionName="1.1">
+    android:versionCode="12"
+    android:versionName="1.2">
 
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="34" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -27,16 +27,24 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".BoardWidget"
-            android:exported="true"
-            android:label="时行 · 看板">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_board_info" />
+        <receiver android:name=".Widget4x1" android:exported="true" android:label="时行 4×1">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_info_4x1" />
+        </receiver>
+
+        <receiver android:name=".Widget4x2" android:exported="true" android:label="时行 4×2">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_info_4x2" />
+        </receiver>
+
+        <receiver android:name=".Widget2x2" android:exported="true" android:label="时行 2×2">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_info_2x2" />
+        </receiver>
+
+        <receiver android:name=".BoardWidget" android:exported="true" android:label="时行 4×4">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_info_4x4" />
         </receiver>
     </application>
 </manifest>
