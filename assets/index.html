@@ -319,13 +319,16 @@ body.done .card,body.done .num,body.done .hero{animation:none!important;opacity:
   <div class="sec">
     <h3>组件背景</h3>
     <div class="opt" id="opt-wbg">
-      <button data-v="0" style="border-color:#2a3644"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#0D1117;border:1px solid #33414f;margin-right:6px;vertical-align:middle"></span>深空</button>
+      <button data-v="0"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#0D1117;border:1px solid #33414f;margin-right:6px;vertical-align:middle"></span>深空</button>
       <button data-v="1"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#000;border:1px solid #33414f;margin-right:6px;vertical-align:middle"></span>纯黑</button>
-      <button data-v="2"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#111A24;border:1px solid #33414f;margin-right:6px;vertical-align:middle"></span>靛蓝</button>
-      <button data-v="3"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1A1F26;border:1px solid #33414f;margin-right:6px;vertical-align:middle"></span>石墨</button>
+      <button data-v="2"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#12294A;border:1px solid #33414f;margin-right:6px;vertical-align:middle"></span>藏青</button>
+      <button data-v="3"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#0E2E24;border:1px solid #33414f;margin-right:6px;vertical-align:middle"></span>墨绿</button>
+      <button data-v="4"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#2A1B3D;border:1px solid #33414f;margin-right:6px;vertical-align:middle"></span>暗紫</button>
+      <button data-v="5"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#F0761E;border:1px solid #ff9a4a;margin-right:6px;vertical-align:middle"></span>橙</button>
     </div>
     <div class="row" style="margin-top:10px"><span style="font-size:11.5px;color:#7f8b99">不透明度</span>
       <input id="walpha" type="range" min="0" max="100" value="100"><span id="walpha-v" style="font-size:11.5px;color:#9aa8b7">100%</span></div>
+    <div class="hint" style="margin-top:6px">不透明度越低越透出壁纸；选橙色时数字会自动转黑</div>
   </div>
 
   <div class="sec">
@@ -354,7 +357,17 @@ body.done .card,body.done .num,body.done .hero{animation:none!important;opacity:
   <div class="sec">
     <h3>更新记录</h3>
     <div class="log">
-      <p><b>v1.2</b>　2026-11-18<br><span class="add">新增</span> 桌面组件四种尺寸：4×1 条、4×2、2×2、4×4，各自独立布局<br><span class="add">新增</span> 设置页可一键请求添加到桌面<br><span class="add">新增</span> 组件背景四色可选、不透明度可调<br><span class="del">删除</span> 无</p>
+      <p><b>v2.0</b>　2026-11-18<br><span class="add">修复</span> 4×1 横条内容被纵向拉伸：高度改用最大值（原先取 minHeight 导致按 40dp 绘制、再被放大近两倍）<br><span class="add">新增</span> 宽高比保护：超出 3:1–6:1 时按比例修正，防止任何格子尺寸下变形<br><span class="add">调整</span> 数字与标签字号、基线重新配平<br><span class="del">删除</span> 无</p>
+
+<p><b>v1.6</b>　2026-11-18<br><span class="add">重做</span> 4×1 横条改为整条自绘位图：圆角、分段、各自配色、顶部高光<br><span class="add">新增</span> 分区点击：点「拍板／卡住／在跑」直接进对应筛选<br><span class="add">新增</span> 版面轮换：每 30 分钟在「三段计数」与「焦点一句话」之间切换，点右侧可立即切换<br><span class="del">删除</span> 4×1 的纯文字控件布局</p>
+
+<p><b>v1.5</b>　2026-11-18<br><span class="add">调整</span> 橙色背景改亮橙 #F0761E，与系统电话、短信图标同色<br><span class="add">新增</span> 亮底自动转黑字：选橙色时三个数字与标签改用深色<br><span class="del">删除</span> 原深橙底 #3A2410</p>
+
+<p><b>v1.4</b>　2026-11-18<br><span class="add">新增</span> 组件背景增加橙色一档<br><span class="add">重绘</span> 图标改为「缺口环 + 冲出箭头」，去掉晷盘刻度，突出“行”而不是“时刻”<br><span class="del">删除</span> 旧图标的十二刻度与指针</p>
+
+<p><b>v1.3</b>　2026-11-18<br><span class="add">修复</span> 组件背景色改不动：Android 12 起组件不允许反射调用 setBackgroundColor，改用图片层上色<br><span class="add">调整</span> 组件背景色由四色改为五色，对比更明显（深空／纯黑／藏青／墨绿／暗紫）<br><span class="del">删除</span> 无</p>
+
+<p><b>v1.2</b>　2026-11-18<br><span class="add">新增</span> 桌面组件四种尺寸：4×1 条、4×2、2×2、4×4，各自独立布局<br><span class="add">新增</span> 设置页可一键请求添加到桌面<br><span class="add">新增</span> 组件背景四色可选、不透明度可调<br><span class="del">删除</span> 无</p>
 
 <p><b>v1.1</b>　2026-11-18<br><span class="add">新增</span> 搜索：可搜任务名、下一步、备注、关联，命中词高亮，支持两个字的中文词<br><span class="add">新增</span> 搜索结果跨全部状态，包含已归档的旧任务，用于回溯<br><span class="add">新增</span> 支持 #q=关键词 直接带参数打开<br><span class="del">删除</span> 无（本版为增量）</p>
 
@@ -399,7 +412,7 @@ body.done .card,body.done .num,body.done .hero{animation:none!important;opacity:
   </div>
 
   <div class="foot">
-    版本 v1.2（build 12）<br>
+    版本 v2.0（build 20）<br>
     创作者　张瑞　及　Amoo·Rui
   </div>
 
@@ -449,6 +462,7 @@ function renderHero(){
   if(!pick){host.innerHTML="";return;}
   const label = (pick["状态"]==="等我拍板") ? "等你一句话" :
                 (pick["状态"]==="卡住") ? "卡在这里" : "下一件";
+  window.__focusTitle = pick["任务"]||"";
   host.innerHTML = `<div class="hero">
       <div class="tag">${label}</div>
       <div class="tt">${pick["任务"]||""}</div>
@@ -457,6 +471,7 @@ function renderHero(){
 }
 
 let QUERY = "";
+let FILTER = "";
 
 function norm(x){ return String(x||"").toLowerCase(); }
 
@@ -518,7 +533,20 @@ function renderList(){
 
   const q=QUERY.trim().toLowerCase();
   let idx=0;
-  if(q){
+  if(FILTER){
+    const map={"wait":"等我拍板","block":"卡住","run":"在跑"};
+    const st=map[FILTER]||"";
+    const list=DATA.filter(x=>(x["状态"]||"")===st);
+    const h=document.createElement("h2");
+    h.innerHTML=(st||"筛选")+" <i>"+list.length+"</i>";
+    host.appendChild(h);
+    list.forEach(item=>host.appendChild(makeCard(item,"",idx++)));
+    const back=document.createElement("button");
+    back.className="back"; back.textContent="显示全部";
+    back.style.marginTop="10px";
+    back.onclick=()=>{FILTER="";renderList();};
+    host.appendChild(back);
+  } else if(q){
     const hits=DATA.map(x=>({x,s:score(x,q)})).filter(o=>o.s>0).sort((a,b)=>b.s-a.s);
     const h=document.createElement("h2");
     h.innerHTML="结果 <i>"+hits.length+"</i>";
@@ -720,6 +748,9 @@ document.addEventListener('input', function(e){
     applyWidgetStyle();
   }
 });
+
+try{ FILTER=(window.Android&&window.Android.takeFilter)?window.Android.takeFilter():""; }catch(e){ FILTER=""; }
+if(FILTER==="flip"){ FILTER=""; refresh(); }
 
 render();
 refresh();

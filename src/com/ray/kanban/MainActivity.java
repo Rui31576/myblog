@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
     private WebView web;
+    private String pendingFilter = "";
 
     public class Bridge {
         @JavascriptInterface
@@ -38,6 +39,19 @@ public class MainActivity extends Activity {
         public void setUrl(String u) {
             SharedPreferences sp = getSharedPreferences(BoardWidget.PREFS, MODE_PRIVATE);
             sp.edit().putString("url", u).apply();
+        }
+
+        @JavascriptInterface
+        public String takeFilter() {
+            String f = pendingFilter;
+            pendingFilter = "";
+            return f;
+        }
+
+        @JavascriptInterface
+        public void saveFocus(String t) {
+            SharedPreferences sp = getSharedPreferences(BoardWidget.PREFS, MODE_PRIVATE);
+            sp.edit().putString(BoardWidget.K_FOCUS, t == null ? "" : t).apply();
         }
 
         @JavascriptInterface
@@ -87,7 +101,20 @@ public class MainActivity extends Activity {
         web.setBackgroundColor(0xFF0F1216);
         web.addJavascriptInterface(new Bridge(), "Android");
         setContentView(web);
+        pendingFilter = getIntent() != null ? getIntent().getStringExtra("filter") : null;
+        if (pendingFilter == null) pendingFilter = "";
         web.loadUrl("file:///android_asset/index.html");
+    }
+
+    @Override
+    protected void onNewIntent(android.content.Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        pendingFilter = intent != null ? intent.getStringExtra("filter") : null;
+        if (pendingFilter == null) pendingFilter = "";
+        if (web != null) {
+            web.reload();
+        }
     }
 
     @Override

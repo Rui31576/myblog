@@ -1,48 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
 
     <!-- 底板 -->
-    <path
-        android:pathData="M20,4 L88,4 A16,16 0 0 1 104,20 L104,88 A16,16 0 0 1 88,104 L20,104 A16,16 0 0 1 4,88 L4,20 A16,16 0 0 1 20,4 Z"
-        android:fillColor="#0B0E12" />
+    <path android:pathData="M20,4 L88,4 A16,16 0 0 1 104,20 L104,88 A16,16 0 0 1 88,104 L20,104 A16,16 0 0 1 4,88 L4,20 A16,16 0 0 1 20,4 Z"
+        android:fillColor="#0B0E12"/>
 
-    <!-- 外环 -->
-    <path
-        android:pathData="M54,22 A32,32 0 1 1 53.9,22 Z"
-        android:strokeColor="#5AB4FF"
-        android:strokeWidth="3"
-        android:fillColor="#00000000" />
+    <!-- 缺口环：开口朝右 -->
+    <path android:pathData="M 26.36,39.11 L 25.33,41.60 L 24.52,44.18 L 23.94,46.81 L 23.60,49.49 L 23.50,52.18 L 23.64,54.88 L 24.01,57.55 L 24.62,60.17 L 25.45,62.74 L 26.51,65.22 L 27.79,67.59 L 29.27,69.85 L 30.94,71.96 L 32.80,73.92 L 34.82,75.71 L 36.98,77.31 L 39.29,78.72 L 41.71,79.91 L 44.22,80.89 L 46.81,81.64 L 49.46,82.16 L 52.14,82.44 L 54.83,82.49 L 57.52,82.30 L 60.19,81.87 L 62.80,81.20 L 65.35,80.31 L 67.80,79.20 L 70.15,77.87 L 72.37,76.34 L 74.45,74.63 L 76.37,72.73 L 78.12,70.67 L 79.67,68.47 L 81.03,66.14 L 82.17,63.69 L 83.09,61.16 L 83.79,58.55 L 84.25,55.90 L 84.48,53.21 L 84.46,50.51 L 84.21,47.83 L 83.73,45.17 L 83.01,42.57 L 76.35,44.74 L 76.90,46.74 L 77.28,48.78 L 77.47,50.85 L 77.48,52.93 L 77.31,55.00 L 76.95,57.05 L 76.42,59.06 L 75.70,61.01 L 74.82,62.89 L 73.78,64.69 L 72.58,66.39 L 71.24,67.97 L 69.76,69.43 L 68.16,70.76 L 66.45,71.93 L 64.64,72.96 L 62.74,73.81 L 60.78,74.50 L 58.77,75.01 L 56.72,75.34 L 54.64,75.49 L 52.57,75.46 L 50.50,75.24 L 48.46,74.84 L 46.46,74.26 L 44.53,73.51 L 42.66,72.59 L 40.89,71.50 L 39.22,70.27 L 37.66,68.89 L 36.23,67.38 L 34.94,65.75 L 33.80,64.02 L 32.82,62.18 L 32.00,60.27 L 31.36,58.30 L 30.89,56.27 L 30.60,54.22 L 30.50,52.14 L 30.58,50.06 L 30.84,48.00 L 31.29,45.97 L 31.91,43.99 L 32.70,42.07 Z" android:fillColor="#3E8FD8"/>
 
-    <!-- 刻度（四段） -->
-    <path android:pathData="M54,24 L54,30" android:strokeColor="#9FD4FF" android:strokeWidth="2.4" android:strokeLineCap="round" />
-    <path android:pathData="M84,54 L78,54" android:strokeColor="#9FD4FF" android:strokeWidth="2.4" android:strokeLineCap="round" />
-    <path android:pathData="M54,84 L54,78" android:strokeColor="#3E6E96" android:strokeWidth="2.4" android:strokeLineCap="round" />
-    <path android:pathData="M24,54 L30,54" android:strokeColor="#3E6E96" android:strokeWidth="2.4" android:strokeLineCap="round" />
+    <!-- 冲出的箭头 -->
+    <path android:pathData="M 90.14,40.26 L 82.46,52.22 L 76.90,35.10 Z" android:fillColor="#FF7A3D"/>
 
-    <!-- 指针 -->
-    <path
-        android:pathData="M54,54 L74,74"
-        android:strokeColor="#FF7A4D"
-        android:strokeWidth="4.5"
-        android:strokeLineCap="round" />
-    <path
-        android:pathData="M74,74 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0"
-        android:fillColor="#FFB37A" />
-
-    <!-- 止弧 -->
-    <path
-        android:pathData="M38,68 A20,20 0 0 1 34,58"
-        android:strokeColor="#2EE6A0"
-        android:strokeWidth="2.6"
-        android:strokeLineCap="round"
-        android:fillColor="#00000000" />
+    <!-- 速度线 -->
+    <path android:pathData="M 16.00,46.00 L 26.00,46.00" android:strokeColor="#FF9A5C" android:strokeWidth="2.6" android:strokeLineCap="round"/>
+    <path android:pathData="M 13.00,54.00 L 26.00,54.00" android:strokeColor="#FF9A5C" android:strokeWidth="2.6" android:strokeLineCap="round"/>
+    <path android:pathData="M 19.00,62.00 L 26.00,62.00" android:strokeColor="#FF9A5C" android:strokeWidth="2.6" android:strokeLineCap="round"/>
 
     <!-- 中心核 -->
-    <path
-        android:pathData="M54,54 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0"
-        android:fillColor="#EAF6FF" />
+    <path android:pathData="M54,52 m-4.5,0 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0" android:fillColor="#EAF6FF"/>
 </vector>
