@@ -1,0 +1,17 @@
+# 构建产物
+build/
+*.apk
+*.keystore
+*.jks
+*.p12
+
+# 凭证与本地配置
+local.properties
+*.local.json
+token*
+.env
+.env.*
+
+# 系统
+.DS_Store
+Thumbs.db

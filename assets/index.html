@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>看板</title>
+<style>
+:root{
+  --bg:#07090c;
+  --card:rgba(16,20,26,.72);
+  --line:rgba(255,255,255,.08);
+  --txt:#eaf1f8;
+  --dim:#7d8a99;
+
+  --c-red:#ff4d3d;
+  --c-org:#ffab2e;
+  --c-blue:#4a9eff;
+  --c-grn:#2ee6a0;
+  --c-dim:#4b5563;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:#07090c}
+body{
+  color:var(--txt);font-family:-apple-system,"PingFang SC","Noto Sans CJK SC",sans-serif;
+  font-size:15px;line-height:1.55;
+  padding:26px 20px 46px;position:relative;overflow-x:hidden;
+  background:
+    radial-gradient(900px 500px at 15% -10%, rgba(255,77,61,.13), transparent 60%),
+    radial-gradient(800px 500px at 95% 105%, rgba(74,158,255,.12), transparent 60%),
+    #07090c;
+}
+/* 网格底纹 */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.22;
+  background-image:linear-gradient(rgba(120,180,255,.09) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(120,180,255,.09) 1px,transparent 1px);
+  background-size:34px 34px;
+  mask-image:radial-gradient(circle at 50% 30%,#000 30%,transparent 85%);
+  -webkit-mask-image:radial-gradient(circle at 50% 30%,#000 30%,transparent 85%);
+}
+/* 页面管道框 + 流动光 */
+.frame{position:fixed;inset:9px;border-radius:20px;pointer-events:none;z-index:3;
+  border:1px solid rgba(120,190,255,.22);
+  box-shadow:inset 0 0 42px rgba(60,140,255,.10), 0 0 26px rgba(60,140,255,.10)}
+.frame::before{content:"";position:absolute;inset:-1px;border-radius:20px;padding:1.5px;
+  background:linear-gradient(110deg,transparent 20%,rgba(120,200,255,.95) 42%,rgba(255,120,90,.9) 56%,transparent 74%);
+  background-size:280% 100%;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  animation:pipe 7s linear infinite}
+@keyframes pipe{from{background-position:220% 0}to{background-position:-120% 0}}
+.frame i{position:absolute;width:16px;height:16px;border:1px solid rgba(140,200,255,.65)}
+.frame i:nth-child(1){top:-1px;left:-1px;border-right:0;border-bottom:0;border-radius:19px 0 0 0}
+.frame i:nth-child(2){top:-1px;right:-1px;border-left:0;border-bottom:0;border-radius:0 19px 0 0}
+.frame i:nth-child(3){bottom:-1px;left:-1px;border-right:0;border-top:0;border-radius:0 0 0 19px}
+.frame i:nth-child(4){bottom:-1px;right:-1px;border-left:0;border-top:0;border-radius:0 0 19px 0}
+
+.wrap{position:relative;z-index:2}
+header{display:flex;align-items:flex-end;justify-content:space-between;padding:0 2px 16px}
+h1{margin:0;font-size:15px;font-weight:600;letter-spacing:6px;color:#dfeaf6;
+  text-shadow:0 0 18px rgba(90,170,255,.55)}
+.sub{font-size:10px;color:#61707f;letter-spacing:1px;text-align:right}
+.dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--c-grn);
+  margin-right:5px;box-shadow:0 0 9px var(--c-grn);animation:bl 2s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* 能量核心：球 + 数字 */
+.core{display:flex;gap:12px;align-items:stretch;margin-bottom:14px}
+.orb{position:relative;width:104px;flex:0 0 104px;aspect-ratio:1/1;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 45%,rgba(60,140,255,.20),rgba(8,11,15,.9) 68%);
+  box-shadow:0 0 34px rgba(74,158,255,.22),inset 0 0 26px rgba(74,158,255,.18)}
+.orb::before{content:"";position:absolute;inset:-3px;border-radius:50%;
+  background:conic-gradient(from 0deg,transparent 0 62%,rgba(120,200,255,.95) 74%,rgba(255,120,90,.9) 82%,transparent 92%);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2.5px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2.5px));
+  animation:spin 4.2s linear infinite}
+.orb::after{content:"";position:absolute;inset:11px;border-radius:50%;border:1px dashed rgba(120,190,255,.22);
+  animation:spin 16s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.orb .v{text-align:center;z-index:2}
+.orb .v b{display:block;font-size:30px;line-height:1;font-weight:700;color:#dff0ff;
+  text-shadow:0 0 16px rgba(120,200,255,.95),0 0 34px rgba(74,158,255,.55)}
+.orb .v span{font-size:8.5px;letter-spacing:2.4px;color:#7ea3c7}
+
+.nums{flex:1;display:flex;gap:8px}
+.num{position:relative;flex:1;border-radius:14px;padding:11px 6px 10px;text-align:center;
+  background:var(--card);border:1px solid var(--line);overflow:hidden;
+  animation:rise .5s cubic-bezier(.22,.9,.28,1) both}
+.num:nth-child(2){animation-delay:.07s}
+.num:nth-child(3){animation-delay:.14s}
+/* 边框流光，每个数字专属色 */
+.num::before{content:"";position:absolute;inset:0;border-radius:14px;padding:1.4px;
+  background:linear-gradient(100deg,transparent 18%,var(--c) 42%,transparent 62%);
+  background-size:260% 100%;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  animation:sweep 3.6s linear infinite;opacity:.9}
+.num:nth-child(2)::before{animation-delay:1.2s}
+.num:nth-child(3)::before{animation-delay:2.4s}
+@keyframes sweep{from{background-position:200% 0}to{background-position:-120% 0}}
+.num b{display:block;font-size:27px;line-height:1.1;font-weight:700;color:var(--c);
+  font-variant-numeric:tabular-nums;animation:breathe 3.2s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:1}50%{opacity:.72}}
+.num span{font-size:9.5px;letter-spacing:2px;color:#7b8797;display:block;margin-top:2px}
+.num .halo{position:absolute;left:50%;top:34%;width:62px;height:62px;transform:translate(-50%,-50%);
+  border-radius:50%;background:radial-gradient(circle,var(--c),transparent 70%);opacity:.22;
+  filter:blur(10px);animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.14;transform:translate(-50%,-50%) scale(.9)}50%{opacity:.3;transform:translate(-50%,-50%) scale(1.12)}}
+
+/* 能量条 */
+.bars{margin:2px 0 18px;display:flex;flex-direction:column;gap:7px}
+.bar{position:relative;height:5px;border-radius:4px;background:rgba(255,255,255,.05);overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;
+  background:linear-gradient(90deg,transparent,var(--c),#fff6,var(--c));
+  background-size:220% 100%;animation:flow 2.6s linear infinite;
+  box-shadow:0 0 12px var(--c)}
+@keyframes flow{from{background-position:120% 0}to{background-position:-120% 0}}
+.bar em{position:absolute;right:0;top:-16px;font-size:8.5px;color:#5f6b79;letter-spacing:1px;font-style:normal}
+
+/* 主卡 */
+.hero{position:relative;border-radius:16px;padding:15px 15px 14px;margin-bottom:20px;overflow:hidden;
+  background:linear-gradient(150deg,rgba(255,77,61,.16),rgba(20,24,30,.86) 62%);
+  border:1px solid rgba(255,77,61,.30);
+  animation:rise .6s .15s cubic-bezier(.22,.9,.28,1) both}
+.hero::before{content:"";position:absolute;inset:0;border-radius:16px;padding:1.4px;
+  background:linear-gradient(100deg,transparent,rgba(255,120,90,.95),transparent 60%);
+  background-size:240% 100%;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;animation:sweep 4s linear infinite}
+.hero .tag{font-size:9.5px;letter-spacing:3px;color:#ff8a78}
+.hero .tt{font-size:19px;font-weight:600;margin:7px 0 6px;line-height:1.35;
+  text-shadow:0 0 22px rgba(255,90,70,.35)}
+.hero .nx{font-size:12.5px;color:#c3ccd8}
+.hero .nx em{font-style:normal;color:var(--c-org);margin-right:5px}
+
+h2{font-size:10px;color:#6c7887;font-weight:600;margin:20px 2px 10px;letter-spacing:4px;
+  display:flex;align-items:center;gap:9px}
+h2::after{content:"";flex:1;height:1px;
+  background:linear-gradient(90deg,rgba(120,190,255,.28),transparent)}
+h2 i{font-style:normal;color:#48525f;letter-spacing:0}
+
+/* 任务卡：边框同色流光 */
+.card{position:relative;border-radius:14px;padding:13px 14px 12px;margin-bottom:10px;
+  background:var(--card);border:1px solid var(--line);overflow:hidden;
+  animation:rise .45s cubic-bezier(.22,.9,.28,1) both}
+.card::before{content:"";position:absolute;inset:0;border-radius:14px;padding:1.3px;
+  background:linear-gradient(100deg,transparent 25%,var(--c) 45%,transparent 65%);
+  background-size:280% 100%;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  animation:sweep 5s linear infinite;opacity:.85}
+.card::after{content:"";position:absolute;left:0;top:12%;bottom:12%;width:2px;background:var(--c);
+  box-shadow:0 0 12px var(--c),0 0 22px var(--c);border-radius:2px}
+.card:active{transform:scale(.985)}
+.t{font-size:15px;font-weight:500;margin-bottom:5px;padding-left:6px;color:#e9eff6}
+.meta{font-size:10.5px;color:#74808f;display:flex;flex-wrap:wrap;gap:8px;padding-left:6px}
+.nx{font-size:12.5px;color:#a8b3c0;margin-top:7px;padding-left:6px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.detail{max-height:0;overflow:hidden;opacity:0;transition:max-height .3s ease,opacity .25s ease;
+  font-size:11.5px;color:#7f8b99;padding-left:6px}
+.card.open .detail{max-height:280px;opacity:1;margin-top:9px;padding-top:9px;
+  border-top:1px dashed rgba(255,255,255,.07)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.panel{display:none;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:16px}
+.panel.on{display:block;animation:rise .3s ease}
+.panel input{width:100%;background:#07090c;border:1px solid var(--line);border-radius:10px;
+  color:var(--txt);padding:11px;font-size:13px;margin:10px 0}
+.panel button{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt);
+  border-radius:10px;padding:9px 16px;font-size:13px;margin-right:8px}
+.panel .hint{font-size:11px;color:#66727f;line-height:1.7}
+footer{margin-top:26px;font-size:10px;color:#49525e;text-align:center;letter-spacing:1.5px}
+
+
+/* ===== 屏切换 ===== */
+.screen{display:none}
+.screen.on{display:block;animation:rise .35s ease both}
+.gear{position:absolute;right:2px;top:-2px;width:30px;height:30px;border-radius:50%;
+  border:1px solid rgba(120,190,255,.28);display:flex;align-items:center;justify-content:center;
+  color:#9ec4e6;font-size:13px;background:rgba(20,26,33,.7)}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.sec h3{font-size:12px;letter-spacing:2px;color:#8fa6bb;margin:0 0 10px;font-weight:600}
+.opt{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.opt button{flex:1;min-width:88px;background:rgba(255,255,255,.04);border:1px solid var(--line);
+  color:#a9b7c6;border-radius:10px;padding:10px 6px;font-size:12.5px}
+.opt button.sel{background:rgba(74,158,255,.16);border-color:rgba(74,158,255,.55);color:#dceeff;
+  box-shadow:0 0 14px rgba(74,158,255,.25)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12.5px;color:#9aa8b7}
+input[type=range]{-webkit-appearance:none;height:3px;background:#1d2733;border-radius:3px;flex:1}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+  background:#4a9eff;box-shadow:0 0 10px rgba(74,158,255,.8)}
+.about p{font-size:12.5px;color:#9dabb9;line-height:1.75;margin:0 0 10px}
+.about .k{color:#cfdae6}
+.log{font-size:12px;color:#8b98a7;line-height:1.8}
+.log b{color:#9ec4e6;font-weight:600}
+.log .add{color:#2ee6a0}
+.log .del{color:#ff8a78}
+.foot{text-align:center;font-size:11px;color:#5c6875;line-height:1.9;margin-top:16px}
+.back{margin-top:6px;width:100%;background:rgba(255,255,255,.05);border:1px solid var(--line);
+  color:#b6c3d1;border-radius:12px;padding:12px;font-size:13px}
+
+/* ===== 光效档位 ===== */
+body.glow-min .frame::before,body.glow-min .orb::before,body.glow-min .num::before,
+body.glow-min .hero::before,body.glow-min .card::before,body.glow-min .bar i{animation:none!important;opacity:.45}
+body.glow-off .frame::before,body.glow-off .orb::before,body.glow-off .num::before,
+body.glow-off .hero::before,body.glow-off .card::before,body.glow-off .bar i{display:none!important}
+body.glow-off .orb::after,body.glow-off .num b,body.glow-off .dot{animation:none!important}
+body.glow-off body::before{opacity:0}
+
+/* ===== 背景档位 ===== */
+body.bg-plain::before{opacity:0!important}
+body.bg-plain{background:#07090c!important}
+body.bg-aura::before{opacity:0!important}
+
+body.done .card,body.done .num,body.done .hero{animation:none!important;opacity:1!important;transform:none!important}
+</style>
+</head>
+<body>
+
+<div class="frame"><i></i><i></i><i></i><i></i></div>
+
+<div class="wrap screen on" id="board">
+<header style="position:relative">
+  <h1>时 行</h1>
+  <div class="sub"><span class="dot"></span><span id="updated">内置快照</span></div>
+  <div class="gear" onclick="go('settings')">≡</div>
+</header>
+
+<div class="core">
+  <div class="orb">
+    <div class="v"><b id="orb-num">0</b><span>ACTIVE</span></div>
+  </div>
+  <div class="nums">
+    <div class="num" style="--c:var(--c-org)"><div class="halo"></div><b id="n-wait">0</b><span>拍板</span></div>
+    <div class="num" style="--c:var(--c-red)"><div class="halo"></div><b id="n-block">0</b><span>卡住</span></div>
+    <div class="num" style="--c:var(--c-grn)"><div class="halo"></div><b id="n-run">0</b><span>在跑</span></div>
+  </div>
+</div>
+
+<div class="bars">
+  <div class="bar"><em>拍板</em><i id="bar-wait" style="--c:var(--c-org);width:0"></i></div>
+  <div class="bar"><em>卡住</em><i id="bar-block" style="--c:var(--c-red);width:0"></i></div>
+  <div class="bar"><em>在跑</em><i id="bar-run" style="--c:var(--c-grn);width:0"></i></div>
+</div>
+
+<div id="hero"></div>
+<div id="list"></div>
+
+
+<div class="panel" id="panel">
+  <div class="hint">数据源地址（返回 JSON 数组）。留空只用内置快照。</div>
+  <input id="url" placeholder="https://.../board.json" />
+  <button onclick="saveUrl()">保存并刷新</button>
+  <button onclick="clearUrl()">清空</button>
+</div>
+
+<footer id="ft">长按设置数据源 · 轻点刷新</footer>
+</div>
+<div class="wrap screen" id="settings">
+  <header style="position:relative"><h1>设 置</h1><div class="gear" onclick="go('board')">×</div></header>
+
+  <div class="sec">
+    <h3>光效</h3>
+    <div class="opt" id="opt-glow">
+      <button data-v="full">全开</button>
+      <button data-v="min">轻量省电</button>
+      <button data-v="off">关闭</button>
+    </div>
+    <div class="row" style="margin-top:6px;color:#66727f;font-size:11px">轻量档停掉循环流光，保留静态描边</div>
+  </div>
+
+  <div class="sec">
+    <h3>背景</h3>
+    <div class="opt" id="opt-bg">
+      <button data-v="grid">网格</button>
+      <button data-v="aura">纯光晕</button>
+      <button data-v="plain">纯色</button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h3>卡片透明度</h3>
+    <div class="row"><input id="alpha" type="range" min="35" max="100" value="72"><span id="alpha-v">72%</span></div>
+  </div>
+
+  <div class="sec">
+    <h3>数据源</h3>
+    <input id="url2" placeholder="https://.../board.json" style="width:100%;background:#07090c;border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:11px;font-size:13px;margin-bottom:10px" />
+    <div class="opt"><button onclick="saveUrl2()">保存并刷新</button><button onclick="clearUrl2()">清空</button></div>
+    <div style="margin-top:8px;color:#66727f;font-size:11px">留空则只用内置快照</div>
+  </div>
+
+  <button class="back" onclick="go('about')">关于 · 更新记录 · 免责声明</button>
+</div>
+
+<div class="wrap screen about" id="about">
+  <header style="position:relative"><h1>关 于</h1><div class="gear" onclick="go('settings')">×</div></header>
+
+  <div class="sec">
+    <h3>产品介绍</h3>
+    <p>时行是一个个人任务看板，用来把散在会话、表格、文档里的待办集中到一屏，并且让它们持续出现在视野里。</p>
+    <p>它不负责记录灵感，负责盯住已经决定要做的事：谁在做、卡在哪、还剩多久、什么时候该结档。</p>
+    <p>桌面组件常驻首屏，不解锁也能看到三个数字：等你拍板的、卡住的、正在跑的。</p>
+    <p style="color:#b9c8d8">名字取自《周易·艮卦·彖传》：</p>
+    <p style="color:#d9e7f5;border-left:2px solid rgba(255,171,46,.6);padding-left:10px;margin-bottom:6px">「时止则止，时行则行，动静不失其时，其道光明。」</p>
+    <p>意思是该停就停、该走就走，动与静都不错过它该有的时机。看板要做的正是这件事：判断什么时候该推进，什么时候可以先搁着。</p>
+  </div>
+
+  <div class="sec">
+    <h3>更新记录</h3>
+    <div class="log">
+      <p><b>v0.8</b>　2026-11-18<br><span class="add">改名</span> 从「司南」改为「时行」，名字取自《周易·艮卦·彖传》<br><span class="add">新增</span> 产品介绍补入名字出处与释义<br><span class="add">重做</span> 应用图标：晷盘＋指针，替代原来的轨道图形<br><span class="del">删除</span> 旧图标的三弧构图</p>
+
+<p><b>v0.7</b>　2026-11-18<br><span class="add">修复</span> 桌面组件加载失败（去掉 RemoteViews 不支持的主题样式进度条，简化布局、缩小背景图）</p>
+
+<p><b>v0.6</b>　2026-11-18<br>
+      <span class="add">新增</span> 设置页：光效三档（全开／轻量省电／关闭）、背景三档（网格／纯光晕／纯色）、卡片透明度可调<br>
+      <span class="add">新增</span> 关于页：产品介绍、更新记录、免责声明、版本与署名<br>
+      <span class="add">新增</span> 应用图标，恢复桌面入口<br>
+      <span class="add">改名</span> 从「看板」改为「司南」<br>
+      <span class="del">删除</span> 隐藏入口方案（改为正常图标）</p>
+
+      <p><b>v0.5</b>　2026-11-18<br>
+      <span class="add">新增</span> 桌面组件 4×4、预渲染 HUD 背景、能量条<br>
+      <span class="add">新增</span> 组件自行联网刷新，不依赖打开 App</p>
+
+      <p><b>v0.4</b>　2026-11-18<br>
+      <span class="add">新增</span> 科幻视觉层：页框管道流光、能量球、能量条、卡片同色流光<br>
+      <span class="add">调整</span> 配色按紧急程度划分：今天红、本周橙、本月蓝、其余青绿</p>
+
+      <p><b>v0.3</b>　2026-11-18<br>
+      <span class="add">新增</span> 数字滚动、卡片入场动画、主卡光带<br>
+      <span class="del">删除</span> 桌面图标（本版已恢复）</p>
+
+      <p><b>v0.2</b>　2026-11-18<br>
+      <span class="add">新增</span> 桌面组件、数据源可配置、离线缓存、60 秒自动刷新</p>
+
+      <p><b>v0.1</b>　2026-11-18<br>
+      <span class="add">首版</span> 单页看板，内置 15 条任务快照，按状态分组</p>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h3>免责声明</h3>
+    <p>本应用为个人自用工具，所有数据来源于使用者自行填写的任务表与公开信息，仅供个人安排参考，不构成任何形式的建议、承诺或担保。</p>
+    <p>任务状态、截止时间、他人承诺等内容由使用者自行录入，应用不对其真实性与完整性负责。因使用本应用作出或未作出任何决定所产生的后果，由使用者自行承担。</p>
+    <p>应用不收集、不上传任何个人信息；数据仅保存在本机与使用者自行指定的数据源中。</p>
+  </div>
+
+  <div class="foot">
+    版本 v0.8（build 8）<br>
+    创作者　张瑞　及　Amoo·Rui
+  </div>
+
+  <button class="back" onclick="go('board')">返回看板</button>
+</div>
+
+
+<script>
+const SNAPSHOT = [{"任务": "农村挂礼小程序上线", "下一步": "真机验收三条关键路径 → 注册 → 发布", "线": "小程序", "紧急度": "今天", "卡在谁": "瑞", "成果备注": "WB 已独立开发完成，卡在人工环节", "依赖关系": "唯一端到端样本；它跑通，能力包才有『我能交付』的证据", "状态": "卡住", "动作类型": "注册发布"}, {"任务": "中国侧能力包一页纸", "下一步": "等回执，检查有没有产物路径", "线": "能力包", "紧急度": "本周", "卡在谁": "WorkBuddy", "成果备注": "工单已写好，可直接粘贴", "依赖关系": "三件套之一；缅语版依赖它先定稿", "状态": "在跑", "动作类型": "可派"}, {"任务": "缅甸侧缅语版一页纸", "下一步": "中文定稿后派单，机翻后瑞亲自校语气词", "线": "能力包", "紧急度": "本周", "卡在谁": "WorkBuddy", "成果备注": "缅商一眼能看出翻译腔，关键句必须人校", "依赖关系": "依赖中国侧定稿", "状态": "待办", "动作类型": "可派"}, {"任务": "能力包样包（一份真实调研）", "下一步": "用已采数据做一条木姐通道的路线实测", "线": "能力包", "紧急度": "本周", "卡在谁": "Amoo", "成果备注": "没有品牌背书时，样包是唯一能替代信任的东西", "依赖关系": "与采集成果共用素材，一鱼两吃", "状态": "待办", "动作类型": "可派"}, {"任务": "能力包挂出去", "下一步": "微信朋友圈+边地观察+闲鱼三处先挂", "线": "能力包", "紧急度": "本周", "卡在谁": "瑞", "成果备注": "缅甸侧本周只送不挂", "依赖关系": "触达要时间沉淀，越早挂越好", "状态": "待办", "动作类型": "注册发布"}, {"任务": "女性友好岗清单（36条）", "下一步": "挑3条打电话核实是否在招", "线": "用工采集", "紧急度": "今天", "卡在谁": "瑞", "成果备注": "58三页扫114条，本地服务业36条、蓝领12、高危排除10", "依赖关系": "核实完可直接发群；也是能力包素材", "状态": "在跑", "动作类型": "打电话"}, {"任务": "房源清单（30条/27标个人）", "下一步": "核实竹林雅苑等3套是否真房东", "线": "房源", "紧急度": "今天", "卡在谁": "瑞", "成果备注": "竹林雅苑1500元/130㎡、湖畔尚湾2083元/147㎡最可能谈介绍费", "依赖关系": "与用工同一批客户：找工的人先要住", "状态": "在跑", "动作类型": "打电话"}, {"任务": "缅籍可做岗开跑", "下一步": "58 上无缅籍可做岗，换源：园区门口+本地群+汇洋劳务+人社公告；等你走一线时顺带问厂里收不收缅籍", "线": "用工采集", "紧急度": "本周", "卡在谁": "Amoo", "成果备注": "2026-11-18 实测：58瑞丽普工页54条，严格本地仅4条且全是外地中介帖，不可用", "依赖关系": "50元/单，现金流最快的一条", "状态": "卡住", "动作类型": "可派"}, {"任务": "公众号《天花板不是手机给的》", "下一步": "只需回一个字母：A 发「边地观察」/ B 发「有枣没枣」/ C 先存不发。选定后我再配凭据推草稿箱", "线": "内容", "紧急度": "本周", "卡在谁": "瑞", "成果备注": "1701字成稿、封面与要点卡已做、预览已核", "依赖关系": "先发文章，能力包挂出时才有信任背书", "状态": "卡住", "动作类型": "拍板"}, {"任务": "派单台 v0.1", "下一步": "只需回一个字母：A 只以飞书表为准 / B 只以本地CSV为准 / C 两个都停用，回归纯记事", "线": "派单台", "紧急度": "今天", "卡在谁": "瑞", "成果备注": "建任务/回执/超时告警/电话清单已实测通过", "依赖关系": "所有线的账本，先跑一天再谈优化", "状态": "在跑", "动作类型": "拍板"}, {"任务": "缅甸侧发布矩阵", "下一步": "FB Page + TG 频道各发3条内容测水温", "线": "能力包", "紧急度": "本周", "卡在谁": "瑞", "成果备注": "先发内容不宣传服务，有人问才挂单", "依赖关系": "与 YouTube 作品集共用一次实地素材", "状态": "待办", "动作类型": "注册发布"}, {"任务": "本周收入动作", "下一步": "只需回一个数字：这周最多接 1 单 / 2 单 / 0 单（只铺渠道不接活）", "线": "现金流", "紧急度": "今天", "卡在谁": "瑞", "成果备注": "缅币/人民币/微信/支付宝先定一种", "依赖关系": "它决定其他线投入多少精力", "状态": "等我拍板", "动作类型": "拍板"}, {"任务": "待办池与派单台是否合并", "下一步": "只需回一个字母：A 待办池并进看板 / B 保留独立但只看板记任务 / C 冻结待办池", "线": "派单台", "紧急度": "本周", "卡在谁": "瑞", "成果备注": "我倾向单独建：待办是清单，派单是流水", "依赖关系": "决定以后在哪维护，晚定会两头维护", "状态": "等我拍板", "动作类型": "拍板"}, {"任务": "下一个小程序选题", "下一步": "等农村挂礼发布成功后再定", "线": "小程序", "紧急度": "不着急", "卡在谁": "无", "成果备注": "先不做", "依赖关系": "一条跑通再复制，现在开第二条是分散", "状态": "待埋", "动作类型": "无"}, {"任务": "桌宠/Minimax 方向", "下一步": "已决定不再投入，涉及时直接引用此条", "线": "其他", "紧急度": "不着急", "卡在谁": "无", "成果备注": "已决策，不再占用注意力", "依赖关系": "无", "状态": "待埋", "动作类型": "无"}];
+
+const GROUPS = [
+  ["等我拍板"],["卡住"],["在跑"],["待办"],["待埋"]
+];
+
+let DATA = SNAPSHOT;
+let holder = {wait:0,block:0,run:0};
+
+function $(id){return document.getElementById(id)}
+
+// 按紧急度定色：今天=红，本周=橙，本月=蓝，其余=青绿
+function colorOf(item){
+  const u = item["紧急度"] || "";
+  if(u.indexOf("今天")>=0) return "var(--c-red)";
+  if(u.indexOf("本周")>=0) return "var(--c-org)";
+  if(u.indexOf("本月")>=0) return "var(--c-blue)";
+  return "var(--c-grn)";
+}
+
+function countUp(el, to){
+  const from = parseInt(el.textContent)||0;
+  if(from===to){el.textContent=to;return;}
+  const t0=performance.now(), dur=520;
+  function step(t){
+    const p=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(from+(to-from)*e);
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+  setTimeout(()=>{el.textContent=to;}, dur+120);
+}
+
+function renderHero(){
+  const wait = DATA.filter(x=>x["状态"]==="等我拍板");
+  const block = DATA.filter(x=>x["状态"]==="卡住");
+  const pick = wait[0] || block[0] || DATA.find(x=>x["状态"]==="在跑") || DATA[0];
+  const host = $("hero");
+  if(!pick){host.innerHTML="";return;}
+  const label = (pick["状态"]==="等我拍板") ? "等你一句话" :
+                (pick["状态"]==="卡住") ? "卡在这里" : "下一件";
+  host.innerHTML = `<div class="hero">
+      <div class="tag">${label}</div>
+      <div class="tt">${pick["任务"]||""}</div>
+      <div class="nx"><em>下一步</em>${pick["下一步"]||"未写"}</div>
+    </div>`;
+}
+
+function renderList(){
+  const host = $("list");
+  host.innerHTML = "";
+  const counts = {wait:0,block:0,run:0};
+  let idx = 0;
+  GROUPS.forEach(([status])=>{
+    const list = DATA.filter(x=>(x["状态"]||"")===status);
+    if(!list.length) return;
+    if(status==="等我拍板") counts.wait=list.length;
+    if(status==="卡住") counts.block=list.length;
+    if(status==="在跑") counts.run=list.length;
+    const h=document.createElement("h2");
+    h.innerHTML = status + " <i>" + list.length + "</i>";
+    host.appendChild(h);
+    list.forEach(item=>{
+      const c=document.createElement("div");
+      c.className="card";
+      c.style.setProperty("--c", colorOf(item));
+      c.style.animationDelay=(0.04*idx++)+"s";
+      c.innerHTML =
+        `<div class="t">${item["任务"]||""}</div>`+
+        `<div class="meta"><span>${item["线"]||""}</span><span>${item["卡在谁"]||""}</span>`+
+        `<span>${item["动作类型"]||""}</span><span>${item["紧急度"]||""}</span></div>`+
+        (item["下一步"]?`<div class="nx">${item["下一步"]}</div>`:"")+
+        `<div class="detail">`+
+          (item["依赖关系"]?`<div>关联：${item["依赖关系"]}</div>`:"")+
+          (item["成果备注"]?`<div>备注：${item["成果备注"]}</div>`:"")+
+        `</div>`;
+      c.onclick=()=>c.classList.toggle("open");
+      host.appendChild(c);
+    });
+  });
+
+  const total = Math.max(1, counts.wait+counts.block+counts.run);
+  countUp($("n-wait"),counts.wait);
+  countUp($("n-block"),counts.block);
+  countUp($("n-run"),counts.run);
+  countUp($("orb-num"),counts.wait+counts.block+counts.run);
+  $("bar-wait").style.width = (counts.wait/total*100).toFixed(0)+"%";
+  $("bar-block").style.width = (counts.block/total*100).toFixed(0)+"%";
+  $("bar-run").style.width = (counts.run/total*100).toFixed(0)+"%";
+  holder=counts;
+  pushToAndroid();
+}
+
+function render(){renderHero();renderList();}
+
+function pushToAndroid(){
+  try{
+    if(window.Android&&window.Android.saveCounts){
+      const ts=new Date().toLocaleString("zh-CN",{hour12:false}).slice(5,16);
+      window.Android.saveCounts(holder.wait,holder.block,holder.run,ts);
+    }
+  }catch(e){}
+}
+
+async function refresh(){
+  let url="";
+  try{url=(window.Android&&window.Android.getUrl)?window.Android.getUrl():"";}catch(e){}
+  if(!url) url=localStorage.getItem("boardUrl")||"";
+  if(!url){$("updated").textContent="内置快照";return;}
+  try{
+    const sep=url.includes("?")?"&":"?";
+    const r=await fetch(url+sep+"t="+Date.now(),{cache:"no-store"});
+    const j=await r.json();
+    DATA=Array.isArray(j)?j:(j.items||DATA);
+    localStorage.setItem("boardCache",JSON.stringify(DATA));
+    $("updated").textContent=new Date().toLocaleString("zh-CN",{hour12:false}).slice(5,16);
+    render();
+  }catch(e){
+    const c=localStorage.getItem("boardCache");
+    if(c){try{DATA=JSON.parse(c);render();}catch(_){}}
+    $("updated").textContent="离线缓存";
+  }
+}
+
+function saveUrl(){
+  const v=$("url").value.trim();
+  try{if(window.Android&&window.Android.setUrl)window.Android.setUrl(v);}catch(e){}
+  localStorage.setItem("boardUrl",v);
+  $("panel").classList.remove("on");
+  refresh();
+}
+function clearUrl(){$("url").value="";saveUrl();}
+
+let pressTimer=null;
+const ft=$("ft");
+ft.addEventListener("touchstart",()=>{
+  pressTimer=setTimeout(()=>{
+    let u="";
+    try{u=window.Android&&window.Android.getUrl?window.Android.getUrl():"";}catch(e){}
+    $("url").value=u||localStorage.getItem("boardUrl")||"";
+    $("panel").classList.add("on");
+  },600);
+});
+["touchend","touchmove","touchcancel"].forEach(ev=>ft.addEventListener(ev,()=>clearTimeout(pressTimer)));
+ft.addEventListener("click",()=>{if(!$("panel").classList.contains("on"))refresh();});
+
+
+function go(id){
+  ['board','settings','about'].forEach(k=>{
+    const el=document.getElementById(k);
+    if(el) el.classList.toggle('on',k===id);
+  });
+  window.scrollTo(0,0);
+  if(id==='settings'){ loadSettings(); }
+}
+
+function applyPrefs(){
+  const g=localStorage.getItem('p_glow')||'full';
+  const b=localStorage.getItem('p_bg')||'grid';
+  const a=parseInt(localStorage.getItem('p_alpha')||'72');
+  document.body.classList.remove('bg-plain','bg-aura','glow-min','glow-off');
+  if(b==='plain')document.body.classList.add('bg-plain');
+  if(b==='aura')document.body.classList.add('bg-aura');
+  if(g==='min')document.body.classList.add('glow-min');
+  if(g==='off')document.body.classList.add('glow-off');
+  document.documentElement.style.setProperty('--cardA',(a/100).toFixed(2));
+  document.querySelectorAll('.card,.sec,.num,.panel').forEach(el=>{
+    el.style.background='rgba(16,20,26,'+(a/100).toFixed(2)+')';
+  });
+}
+
+function markOpt(box,val){
+  document.querySelectorAll('#'+box+' button').forEach(btn=>{
+    btn.classList.toggle('sel',btn.dataset.v===val);
+  });
+}
+
+function loadSettings(){
+  markOpt('opt-glow',localStorage.getItem('p_glow')||'full');
+  markOpt('opt-bg',localStorage.getItem('p_bg')||'grid');
+  const a=parseInt(localStorage.getItem('p_alpha')||'72');
+  const sl=document.getElementById('alpha');
+  if(sl){sl.value=a;document.getElementById('alpha-v').textContent=a+'%';}
+  let u='';
+  try{u=window.Android&&window.Android.getUrl?window.Android.getUrl():'';}catch(e){}
+  const i2=document.getElementById('url2');
+  if(i2)i2.value=u||localStorage.getItem('boardUrl')||'';
+}
+
+document.addEventListener('click',function(e){
+  const btn=e.target.closest('#opt-glow button');
+  if(btn){localStorage.setItem('p_glow',btn.dataset.v);applyPrefs();loadSettings();return;}
+  const btn2=e.target.closest('#opt-bg button');
+  if(btn2){localStorage.setItem('p_bg',btn2.dataset.v);applyPrefs();loadSettings();return;}
+});
+document.addEventListener('input',function(e){
+  if(e.target.id==='alpha'){
+    const v=e.target.value;
+    localStorage.setItem('p_alpha',v);
+    document.getElementById('alpha-v').textContent=v+'%';
+    applyPrefs();
+  }
+});
+
+function saveUrl2(){
+  const el=document.getElementById('url2'); if(!el)return;
+  const v=el.value.trim();
+  try{if(window.Android&&window.Android.setUrl)window.Android.setUrl(v);}catch(e){}
+  localStorage.setItem('boardUrl',v);
+  refresh();
+  go('board');
+}
+function clearUrl2(){document.getElementById('url2').value='';saveUrl2();}
+
+applyPrefs();
+
+render();
+refresh();
+setTimeout(()=>document.body.classList.add("done"),1200);
+setInterval(refresh,60000);
+</script>
+</body>
+</html>
