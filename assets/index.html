@@ -213,6 +213,20 @@ body.bg-plain::before{opacity:0!important}
 body.bg-plain{background:#07090c!important}
 body.bg-aura::before{opacity:0!important}
 
+
+/* ===== 搜索 ===== */
+.search{display:flex;align-items:center;gap:8px;margin:0 0 12px;padding:0 12px;height:42px;
+  border-radius:12px;background:rgba(16,20,26,.72);border:1px solid var(--line)}
+.search:focus-within{border-color:rgba(74,158,255,.55);box-shadow:0 0 18px rgba(74,158,255,.18)}
+.search .sicon{color:#6f8497;font-size:15px}
+.search input{flex:1;background:transparent;border:0;outline:0;color:var(--txt);
+  font-size:13.5px;font-family:inherit}
+.search input::placeholder{color:#55606d}
+.search #q-clear{display:none;color:#7d8a99;font-size:17px;padding:0 2px}
+.search.has #q-clear{display:block}
+mark{background:rgba(255,171,46,.28);color:#ffe0b0;border-radius:3px;padding:0 1px}
+.empty{text-align:center;color:#5d6874;font-size:12.5px;padding:26px 0}
+
 body.done .card,body.done .num,body.done .hero{animation:none!important;opacity:1!important;transform:none!important}
 </style>
 </head>
@@ -226,6 +240,12 @@ body.done .card,body.done .num,body.done .hero{animation:none!important;opacity:
   <div class="sub"><span class="dot"></span><span id="updated">内置快照</span></div>
   <div class="gear" onclick="go('settings')">≡</div>
 </header>
+
+<div class="search">
+  <span class="sicon">⌕</span>
+  <input id="q" placeholder="搜任务 · 下一步 · 备注" autocomplete="off" spellcheck="false">
+  <span id="q-clear">×</span>
+</div>
 
 <div class="core">
   <div class="orb">
@@ -310,7 +330,11 @@ body.done .card,body.done .num,body.done .hero{animation:none!important;opacity:
   <div class="sec">
     <h3>更新记录</h3>
     <div class="log">
-      <p><b>v0.8</b>　2026-11-18<br><span class="add">改名</span> 从「司南」改为「时行」，名字取自《周易·艮卦·彖传》<br><span class="add">新增</span> 产品介绍补入名字出处与释义<br><span class="add">重做</span> 应用图标：晷盘＋指针，替代原来的轨道图形<br><span class="del">删除</span> 旧图标的三弧构图</p>
+      <p><b>v1.1</b>　2026-11-18<br><span class="add">新增</span> 搜索：可搜任务名、下一步、备注、关联，命中词高亮，支持两个字的中文词<br><span class="add">新增</span> 搜索结果跨全部状态，包含已归档的旧任务，用于回溯<br><span class="add">新增</span> 支持 #q=关键词 直接带参数打开<br><span class="del">删除</span> 无（本版为增量）</p>
+
+<p><b>v1.0</b>　2026-11-18<br><span class="add">重做</span> 图标改为矢量绘制，去掉全部位图资源<br><span class="add">新增</span> 组件背景改为 shape 资源<br><span class="del">删除</span> PNG 图标与位图背景</p>
+
+<p><b>v0.8</b>　2026-11-18<br><span class="add">改名</span> 从「司南」改为「时行」，名字取自《周易·艮卦·彖传》<br><span class="add">新增</span> 产品介绍补入名字出处与释义<br><span class="add">重做</span> 应用图标：晷盘＋指针，替代原来的轨道图形<br><span class="del">删除</span> 旧图标的三弧构图</p>
 
 <p><b>v0.7</b>　2026-11-18<br><span class="add">修复</span> 桌面组件加载失败（去掉 RemoteViews 不支持的主题样式进度条，简化布局、缩小背景图）</p>
 
@@ -349,7 +373,7 @@ body.done .card,body.done .num,body.done .hero{animation:none!important;opacity:
   </div>
 
   <div class="foot">
-    版本 v0.8（build 8）<br>
+    版本 v1.1（build 11）<br>
     创作者　张瑞　及　Amoo·Rui
   </div>
 
@@ -406,47 +430,99 @@ function renderHero(){
     </div>`;
 }
 
+let QUERY = "";
+
+function norm(x){ return String(x||"").toLowerCase(); }
+
+function score(item, q){
+  const t=norm(item["任务"]);
+  const m=norm([item["线"],item["卡在谁"],item["动作类型"],item["状态"],item["紧急度"]].join(" "));
+  const b=norm([item["下一步"],item["成果备注"],item["依赖关系"]].join(" "));
+  let sc=0;
+  if(t.indexOf(q)>=0) sc+=10;
+  if(m.indexOf(q)>=0) sc+=5;
+  if(b.indexOf(q)>=0) sc+=3;
+  if(!sc){
+    const all=t+" "+m+" "+b;
+    let hit=0;
+    for(const ch of q){ if(ch.trim() && all.indexOf(ch)>=0) hit++; }
+    if(hit===q.replace(/\s/g,"").length) sc=1;
+  }
+  return sc;
+}
+
+function hl(text,q){
+  const src=String(text==null?"":text);
+  if(!q) return src;
+  const low=src.toLowerCase();
+  const i=low.indexOf(q);
+  if(i<0) return src;
+  return src.slice(0,i)+"<mark>"+src.slice(i,i+q.length)+"</mark>"+src.slice(i+q.length);
+}
+
+function makeCard(item,q,idx){
+  const c=document.createElement("div");
+  c.className="card";
+  c.style.setProperty("--c", colorOf(item));
+  c.style.animationDelay=(0.03*idx)+"s";
+  const meta=[item["状态"],item["线"],item["卡在谁"],item["动作类型"],item["紧急度"]]
+    .filter(Boolean).map(v=>`<span>${v}</span>`).join("");
+  c.innerHTML =
+    `<div class="t">${hl(item["任务"],q)}</div>`+
+    `<div class="meta">${meta}</div>`+
+    (item["下一步"]?`<div class="nx">${hl(item["下一步"],q)}</div>`:"")+
+    `<div class="detail">`+
+      (item["依赖关系"]?`<div>关联：${hl(item["依赖关系"],q)}</div>`:"")+
+      (item["成果备注"]?`<div>备注：${hl(item["成果备注"],q)}</div>`:"")+
+    `</div>`;
+  c.onclick=()=>c.classList.toggle("open");
+  return c;
+}
+
 function renderList(){
-  const host = $("list");
-  host.innerHTML = "";
-  const counts = {wait:0,block:0,run:0};
-  let idx = 0;
-  GROUPS.forEach(([status])=>{
-    const list = DATA.filter(x=>(x["状态"]||"")===status);
-    if(!list.length) return;
-    if(status==="等我拍板") counts.wait=list.length;
-    if(status==="卡住") counts.block=list.length;
-    if(status==="在跑") counts.run=list.length;
-    const h=document.createElement("h2");
-    h.innerHTML = status + " <i>" + list.length + "</i>";
-    host.appendChild(h);
-    list.forEach(item=>{
-      const c=document.createElement("div");
-      c.className="card";
-      c.style.setProperty("--c", colorOf(item));
-      c.style.animationDelay=(0.04*idx++)+"s";
-      c.innerHTML =
-        `<div class="t">${item["任务"]||""}</div>`+
-        `<div class="meta"><span>${item["线"]||""}</span><span>${item["卡在谁"]||""}</span>`+
-        `<span>${item["动作类型"]||""}</span><span>${item["紧急度"]||""}</span></div>`+
-        (item["下一步"]?`<div class="nx">${item["下一步"]}</div>`:"")+
-        `<div class="detail">`+
-          (item["依赖关系"]?`<div>关联：${item["依赖关系"]}</div>`:"")+
-          (item["成果备注"]?`<div>备注：${item["成果备注"]}</div>`:"")+
-        `</div>`;
-      c.onclick=()=>c.classList.toggle("open");
-      host.appendChild(c);
-    });
+  const host=$("list");
+  host.innerHTML="";
+  const counts={wait:0,block:0,run:0};
+  DATA.forEach(x=>{
+    const st=x["状态"]||"";
+    if(st==="等我拍板") counts.wait++;
+    else if(st==="卡住") counts.block++;
+    else if(st==="在跑") counts.run++;
   });
 
-  const total = Math.max(1, counts.wait+counts.block+counts.run);
+  const q=QUERY.trim().toLowerCase();
+  let idx=0;
+  if(q){
+    const hits=DATA.map(x=>({x,s:score(x,q)})).filter(o=>o.s>0).sort((a,b)=>b.s-a.s);
+    const h=document.createElement("h2");
+    h.innerHTML="结果 <i>"+hits.length+"</i>";
+    host.appendChild(h);
+    if(!hits.length){
+      const e=document.createElement("div");
+      e.className="empty";
+      e.textContent="没有匹配的任务，换个词试试";
+      host.appendChild(e);
+    }
+    hits.forEach(o=>host.appendChild(makeCard(o.x,q,idx++)));
+  }else{
+    GROUPS.forEach(([status])=>{
+      const list=DATA.filter(x=>(x["状态"]||"")===status);
+      if(!list.length) return;
+      const h=document.createElement("h2");
+      h.innerHTML=status+" <i>"+list.length+"</i>";
+      host.appendChild(h);
+      list.forEach(item=>host.appendChild(makeCard(item,"",idx++)));
+    });
+  }
+
+  const total=Math.max(1,counts.wait+counts.block+counts.run);
   countUp($("n-wait"),counts.wait);
   countUp($("n-block"),counts.block);
   countUp($("n-run"),counts.run);
   countUp($("orb-num"),counts.wait+counts.block+counts.run);
-  $("bar-wait").style.width = (counts.wait/total*100).toFixed(0)+"%";
-  $("bar-block").style.width = (counts.block/total*100).toFixed(0)+"%";
-  $("bar-run").style.width = (counts.run/total*100).toFixed(0)+"%";
+  $("bar-wait").style.width=(counts.wait/total*100).toFixed(0)+"%";
+  $("bar-block").style.width=(counts.block/total*100).toFixed(0)+"%";
+  $("bar-run").style.width=(counts.run/total*100).toFixed(0)+"%";
   holder=counts;
   pushToAndroid();
 }
@@ -573,6 +649,17 @@ function saveUrl2(){
 function clearUrl2(){document.getElementById('url2').value='';saveUrl2();}
 
 applyPrefs();
+
+const qi=$("q");
+if(qi){
+  qi.addEventListener("input",()=>{ QUERY=qi.value; document.querySelector(".search").classList.toggle("has",!!qi.value); renderList(); });
+}
+const qc=$("q-clear");
+if(qc) qc.addEventListener("click",()=>{ QUERY=""; if(qi) qi.value=""; document.querySelector(".search").classList.remove("has"); renderList(); });
+if(location.hash.indexOf("q=")>=0){
+  QUERY=decodeURIComponent(location.hash.split("q=")[1]||"");
+  if(qi){ qi.value=QUERY; document.querySelector(".search").classList.add("has"); }
+}
 
 render();
 refresh();
